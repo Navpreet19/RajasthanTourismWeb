@@ -11,6 +11,46 @@ router.get('/', function(req, res, next) {
 });
 
 
+router.post('/submitProfile', function(req, res, next) {
+	var name = req.body.name;
+	var gender = req.body.gender;
+	var dob = req.body.dob;
+	var email = req.body.email;
+	var fbid = req.body.fbid;
+
+	if(fbid == "")
+		return res.json({ "status": "failed", "message": "Invalid FBid!", "code": "400" });
+
+	db.findUserByFbid(fbid, function (err, result) {
+		if (err) {
+	    	console.log(err);
+	    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+	    }
+
+	    if(result.length == 0) {
+	    	db.addFbUser(fbid, name, gender, dob, email, function (err, result) {
+				if (err) {
+			    	console.log(err);
+			    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+			    }
+			    
+				return res.json({ "status": "success", "message": "New User Added!", "code": "200" });
+			});
+	    }
+	    else {
+	    	db.updateProfile(fbid, name, gender, dob, email, function (err, result) {
+				if (err) {
+			    	console.log(err);
+			    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+			    }
+			    
+				return res.json({ "status": "success", "message": "Profile updated!", "code": "200" });
+			});
+	    }
+	});
+});
+
+
 router.get('/complaint/:id', function(req, res, next) {
 	var addressid = req.params.id;
 
