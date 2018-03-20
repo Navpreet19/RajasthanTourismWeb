@@ -52,6 +52,47 @@ router.post('/submitProfile', function(req, res, next) {
 });
 
 
+router.post('/likeAnalyze', function(req, res, next) {
+	var options = {
+		method: 'POST',
+		url: 'https://api.applymagicsauce.com/auth',
+		headers: { 
+			'Cache-Control': 'no-cache',
+			Accept: 'application/json',
+			'Content-type': 'application/json'
+		},
+		body: '{\r\n\t\t\t\t"customer_id": "3661",\r\n\t    \t\t"api_key": "p2shlpqe59c487eo0k2mhbcrc1"\r\n\t\t\t}' 
+	};
+
+	request(options, function (error1, response1, body1) {
+		if (error1) throw new Error(error1);
+
+		body1 = JSON.parse(body1);
+
+		options = {
+			method: 'POST',
+			url: 'https://api.applymagicsauce.com/like_ids',
+			headers: { 
+				'Postman-Token': '3aa9e660-662b-44e3-4f60-72562ae6ff85',
+				'Cache-Control': 'no-cache',
+				Accept: 'application/json',
+				'Content-type': 'application/json',
+				'X-Auth-Token': body1.token
+			},
+			body: '["5845317146", "6460713406", "22404294985", "35312278675", "105930651606", "171605907303", "199592894970", "274598553922", "340368556015", "100270610030980"]'
+		};
+
+
+		request(options, function (error, response, body) {
+			if (error) throw new Error(error);
+
+			console.log(body);
+
+		});
+	});
+});
+
+
 /*
 Not doing image upload
 This was for MongoDB probably
