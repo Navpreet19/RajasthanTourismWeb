@@ -1,10 +1,10 @@
 # Tourist Support Application
 
-# # Server Side
+## Server Side
 
-# # Client Side (Android)
+## Client Side (Android)
 https://github.com/rizal-rovins/Hackathon_Rajasthan
 
-# # RecastAI ChatBot
+## RecastAI ChatBot
 https://codepen.io/heizaman/pen/JLWRpq
 (Integrated in Android App)
