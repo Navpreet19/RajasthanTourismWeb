@@ -19,35 +19,84 @@ router.post('/submitProfile', function(req, res, next) {
 	var email = req.body.email;
 	var fbid = req.body.fbid;
 
-	if(fbid == "")
-		return res.json({ "status": "failed", "message": "Invalid FBid!", "code": "400" });
+	var options = {
+		method: 'POST',
+		url: 'https://api.applymagicsauce.com/auth',
+		headers: { 
+			'Cache-Control': 'no-cache',
+			Accept: 'application/json',
+			'Content-type': 'application/json'
+		},
+		body: '{\r\n\t\t\t\t"customer_id": "3661",\r\n\t    \t\t"api_key": "p2shlpqe59c487eo0k2mhbcrc1"\r\n\t\t\t}' 
+	};
 
-	db.findUserByFbid(fbid, function (err, result) {
-		if (err) {
-	    	console.log(err);
-	    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
-	    }
+	request(options, function (error1, response1, body1) {
+		if (error1) throw new Error(error1);
 
-	    if(result.length == 0) {
-	    	db.addFbUser(fbid, name, gender, dob, email, function (err, result) {
+		body1 = JSON.parse(body1);
+
+		options = {
+			method: 'POST',
+			url: 'https://api.applymagicsauce.com/like_ids',
+			headers: { 
+				'Postman-Token': '3aa9e660-662b-44e3-4f60-72562ae6ff85',
+				'Cache-Control': 'no-cache',
+				Accept: 'application/json',
+				'Content-type': 'application/json',
+				'X-Auth-Token': body1.token
+			},
+			body: '["5845317146", "6460713406", "22404294985", "35312278675", "105930651606", "171605907303", "199592894970", "274598553922", "340368556015", "100270610030980"]'
+		};
+
+
+		request(options, function (error, response, body) {
+			if (error) throw new Error(error);
+
+			body = JSON.parse(body);
+
+			console.log(body.predictions);
+
+			var Concentration_Journalism = (body.predictions[1]).value;
+			var Concentration_Education = (body.predictions[2]).value;
+			var Concentration_Art = (body.predictions[16]).value;
+			var Concentration_History = (body.predictions[33]).value;
+			var Satisfaction_Life = (body.predictions[8]).value;
+
+			console.log(Concentration_Journalism, Concentration_Education, Concentration_Art, Concentration_History, Satisfaction_Life);
+
+
+			if(fbid == "")
+				return res.json({ "status": "failed", "message": "Invalid FBid!", "code": "400" });
+
+			db.findUserByFbid(fbid, function (err, result) {
 				if (err) {
 			    	console.log(err);
 			    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
 			    }
-			    
-				return res.json({ "status": "success", "message": "New User Added!", "code": "200" });
-			});
-	    }
-	    else {
-	    	db.updateProfile(fbid, name, gender, dob, email, function (err, result) {
-				if (err) {
-			    	console.log(err);
-			    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+
+			    if(result.length == 0) {
+			    	db.addFbUser(fbid, name, gender, dob, email, Concentration_Journalism, Concentration_Education, Concentration_Art, Concentration_History, Satisfaction_Life, function (err, result) {
+						if (err) {
+					    	console.log(err);
+					    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+					    }
+					    
+						return res.json({ "status": "success", "message": "New User Added!", "code": "200" });
+					});
 			    }
-			    
-				return res.json({ "status": "success", "message": "Profile updated!", "code": "200" });
+			    else {
+			    	db.updateProfile(fbid, name, gender, dob, email, Concentration_Journalism, Concentration_Education, Concentration_Art, Concentration_History, Satisfaction_Life, function (err, result) {
+						if (err) {
+					    	console.log(err);
+					    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+					    }
+					    
+						return res.json({ "status": "success", "message": "Profile updated!", "code": "200" });
+					});
+			    }
 			});
-	    }
+
+		});
 	});
 });
 
@@ -178,6 +227,62 @@ router.post('/getplacestories', function(req, res, next) {
 	    	data.reviews = result;
 
 			return res.json({ "status": "success", "message": "success", "code": "200", "data": data });
+	    }
+	});
+});
+
+
+
+
+router.post('/getinterestbasedplaces', function(req, res, next) {
+	var fbid = req.body.fbid;
+
+	if(fbid == "")
+		return res.json({ "status": "failed", "message": "Invalid FBid!", "code": "400" });
+
+	db.findUserByFbid(fbid, function (err, result) {
+		if (err) {
+	    	console.log(err);
+	    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+	    }
+
+	    data = {};
+	    data.placeinterests = `"abc"`;
+
+	    if(result.length == 0) {
+	    	return res.json({ "status": "success", "message": "No User!", "code": "201", "data": data });	    
+	    }
+	    else {
+	    	if(result[0].Concentration_Journalism >= 0.2) {
+	    		data.placeinterests += `, "wildlife"`;
+	    	}
+	    	if(result[0].Concentration_Education >= 0.2) {
+	    		data.placeinterests += `, "museum"`;
+	    	}
+	    	if(result[0].Concentration_Art >= 0.2) {
+	    		data.placeinterests += `, "fort"`;
+	    	}
+	    	if(result[0].Concentration_History >= 0.2) {
+	    		data.placeinterests += `, "palace"`;
+	    	}
+	    	if(result[0].Satisfaction_Life >= 0.2) {
+	    		data.placeinterests += `, "lake"`;
+	    	}
+	    	
+	    	db.findInterestBasedPlaces(data.placeinterests, function (err, result) {
+				if (err) {
+			    	console.log(err);
+			    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+			    }
+
+			    if(result.length == 0) {
+			    	return res.json({ "status": "success", "message": "No Interest Based Places Found!", "code": "200" });
+			    }
+			    else {  
+			    	data.places = result;
+					return res.json({ "status": "success", "message": "Success!", "code": "200", "data": data });
+			    }
+			});
 	    }
 	});
 });
