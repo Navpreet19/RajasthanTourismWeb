@@ -114,6 +114,33 @@ router.post('/getplacereviews', function(req, res, next) {
 });
 
 
+router.post('/getplacestories', function(req, res, next) {
+	var placeid = req.body.placeid;
+
+	if(placeid == "")
+		return res.json({ "status": "failed", "message": "Invalid PlaceId!", "code": "400" });
+
+	db.findStoriesByPlaceId(placeid, function (err, result) {
+		if (err) {
+	    	console.log(err);
+	    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+	    }
+
+	    data = {};
+
+	    if(result.length == 0) {
+	    	return res.json({ "status": "success", "message": "No Reviews Found For This Place!", "code": "201", "data": data });	    
+	    }
+	    else {
+	    	data.placename = result[0].placename;
+
+	    	data.reviews = result;
+
+			return res.json({ "status": "success", "message": "success", "code": "200", "data": data });
+	    }
+	});
+});
+
 
 
 

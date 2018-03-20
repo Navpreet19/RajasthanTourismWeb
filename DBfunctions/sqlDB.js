@@ -47,6 +47,15 @@ funcs.findReviewsByPlaceId = function(placeid, callback) {
 }
 
 
+funcs.findStoriesByPlaceId = function(placeid, callback) {
+	var qry = "SELECT U.name, P.name AS placename, S.userid, S.photo, S.created FROM placestory S, places P, users U WHERE S.place = ? AND P.placeid = S.place AND U.fbid = S.userid";
+
+	db.get().query(qry, [placeid], function (err, rows) {
+		return callback(err, rows);
+	});
+}
+
+
 
 
 funcs.findAddressByAddressId = function(addressid, callback) {
