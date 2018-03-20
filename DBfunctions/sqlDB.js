@@ -65,6 +65,13 @@ funcs.findInterestBasedPlaces = function(placeinterests, callback) {
 }
 
 
+funcs.findAllPlaces = function(callback) {
+	var qry = "SELECT name, description AS text, photo FROM places";
+
+	db.get().query(qry, function (err, rows) {
+		return callback(err, rows);
+	});
+}
 
 
 funcs.findAddressByAddressId = function(addressid, callback) {

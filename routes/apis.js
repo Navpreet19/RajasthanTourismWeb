@@ -288,6 +288,26 @@ router.post('/getinterestbasedplaces', function(req, res, next) {
 });
 
 
+router.post('/getallplaces', function(req, res, next) {
+	db.findAllPlaces(function (err, result) {
+		if (err) {
+	    	console.log(err);
+	    	return res.json({ "status": "failed", "message": "Error!", "code": "400" });
+	    }
+
+	    data = {};
+
+	    if(result.length == 0) {
+	    	return res.json({ "status": "success", "message": "No Places Found!", "code": "200" });
+	    }
+	    else {  
+	    	data.places = result;
+			return res.json({ "status": "success", "message": "Success!", "code": "200", "data": data });
+	    }
+	});
+});
+
+
 
 
 router.get('/complaint/:id', function(req, res, next) {
