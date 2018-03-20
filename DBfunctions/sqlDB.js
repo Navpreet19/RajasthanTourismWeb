@@ -38,6 +38,15 @@ funcs.updateProfile = function(fbid, name, gender, dob, email, callback) {
 }
 
 
+funcs.findReviewsByPlaceId = function(placeid, callback) {
+	var qry = "SELECT U.name, P.name AS placename, R.userid, R.text, R.photo, R.created FROM placereview R, places P, users U WHERE R.place = ? AND P.placeid = R.place AND U.fbid = R.userid";
+
+	db.get().query(qry, [placeid], function (err, rows) {
+		return callback(err, rows);
+	});
+}
+
+
 
 
 funcs.findAddressByAddressId = function(addressid, callback) {
